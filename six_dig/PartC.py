@@ -32,14 +32,9 @@ def isrepeated(pin):
     return any(pin.count(d) > 2 for d in set(pin))
 def ispallindrome(pin):
     return pin == pin[::-1]
-def check_common(pin):
-    if not pin.isdigit() or len(pin) != 4:
-        return "Invalid MPIN"
-    if isconsecutive(pin) or isrepeated(pin) or isalternate(pin):
-        return "WEAK: Commonly used MPIN"
-    return "STRONG"
+
 def isalternate(pin):
-    return len(pin) == 4 and pin[0] == pin[2] and pin[1] == pin[3]
+    return len(pin) == 6 and pin[0] == pin[2] and pin[1] == pin[3] and pin[4] == pin[5]
 def extract_date_parts(date_str):
     if date_str == "-1":
         return set()
@@ -69,17 +64,33 @@ def extract_date_parts(date_str):
 
     return parts
 
-pin = input("Enter your 6 digit MPIN: ")
-
-print("\nNow enter dates in DD/MM/YYYY format or enter -1 if not applicable.")
-
-dob_self = input("Enter your DOB (Self): ")
-dob_spouse = input("Enter your Spouse DOB: ")
-anniversary = input("Enter your Wedding Anniversary: ")
-
-strength, reasons = check_mpin_strength(pin, dob_self, dob_spouse, anniversary)
-
-print("\n🧾 MPIN Analysis Result:")
-print("Strength:", strength)
-print("Reasons:", reasons if reasons else "[] (No weakness found)")
+test_cases = [
+    ("111111", "20/12/2006", "15/03/2028", "28/10/2036", "WEAK", ["COMMONLY_USED"]),
+    ("123456", "15/03/2008", "03/12/2022", "13/05/2026", "WEAK", ["COMMONLY_USED"]),
+    ("654321", "15/06/2002", "12/11/2021", "17/12/2022", "WEAK", ["COMMONLY_USED"]),
+    ("654321", "15/06/2002", "12/11/2021", "11/03/2026", "WEAK", ["COMMONLY_USED"]),
+    ("122221", "12/08/2003", "03/03/2004", "-1", "WEAK", ["COMMONLY_USED"]),
+    ("222333", "10/01/2001", "11/02/2002", "12/12/2012","WEAK", ["COMMONLY_USED"]),
+    ("310303", "31/03/2003", "12/06/2028", "18/03/2024", "WEAK", ["DEMOGRAPHIC_DOB_SELF"]),
+    ("300220", "31/03/2003", "03/03/2004", "11/04/2019","WEAK", ["COMMONLY_USED"]),
+    ("121212", "-1", "12/12/2012", "-1", "WEAK", ["DEMOGRAPHIC_DOB_SPOUSE", "COMMONLY_USED"]),
+    ("250998", "-1", "-1", "25/09/1998", "WEAK", ["DEMOGRAPHIC_ANNIVERSARY"]),
+    ("000000", "03/03/2004", "11/04/2019", "13/12/2025", "WEAK", ["COMMONLY_USED"]),
+    ("200331", "31/03/2003", "-1", "14/11/2022", "WEAK", ["DEMOGRAPHIC_DOB_SELF"]),
+    ("739104", "10/01/2001", "11/02/2002", "12/12/2012", "STRONG", []),
+    ("112233", "11/11/2000", "22/07/2009", "-1", "STRONG", []),
+    ("947261", "-1", "-1", "-1", "STRONG", []),
+    ("250998", "20/12/1980", "-1", "25/09/1998", "WEAK", ["DEMOGRAPHIC_ANNIVERSARY"]),
+    ("200330", "31/03/2003", "-1", "-1", "WEAK", ["COMMONLY_USED"]),
+    ("041195", "-1", "04/11/1995", "-1", "WEAK", ["DEMOGRAPHIC_DOB_SPOUSE"]),
+    ("319004", "12/12/2001", "31/03/2003", "-1", "STRONG", []),
+    ("032031", "31/03/2003", "-1", "-1", "WEAK", ["DEMOGRAPHIC_DOB_SELF"]),
+    ("777321", "-1", "-1", "-1", "WEAK", ["COMMONLY_USED"])
+]
+for i, (pin, dob1, dob2, ann, expected_strength, expected_reasons) in enumerate(test_cases, 1):
+    strength, reasons = check_mpin_strength(pin,dob1,dob2,ann)
+    assert strength == expected_strength, f"Test {i} failed: strength"
+    for r in expected_reasons:
+        assert r in reasons, f"Test {i} failed: missing reason {r}"
+    print(f"✅ Test {i} passed.")
 
