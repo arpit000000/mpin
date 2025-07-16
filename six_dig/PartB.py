@@ -1,7 +1,7 @@
 import datetime
 
 def checkmpin(pin, dob_self, dob_spouse, anniversary):
-    if not pin.isdigit() or len(pin) != 4:
+    if not pin.isdigit() or len(pin) != 6:
         return "Invalid MPIN"
     
     if isalternate(pin):
@@ -9,6 +9,8 @@ def checkmpin(pin, dob_self, dob_spouse, anniversary):
     if isconsecutive(pin):
         return "WEAK"
     if isrepeated(pin):
+        return "WEAK"
+    if ispallindrome(pin):
         return "WEAK"
     
     if dob_self != "-1" and pin in extract_date_parts(dob_self):
@@ -19,6 +21,8 @@ def checkmpin(pin, dob_self, dob_spouse, anniversary):
         return "WEAK"
 
     return "STRONG"
+def ispallindrome(pin):
+    return pin == pin[::-1]
 def isconsecutive(pin):
     for i in range(len(pin) - 2):
         a, b, c = int(pin[i]), int(pin[i+1]), int(pin[i+2])
@@ -31,12 +35,6 @@ def isconsecutive(pin):
 def isrepeated(pin):
     return any(pin.count(d) > 2 for d in set(pin))
 
-def check(pin):
-    if not pin.isdigit() or len(pin) != 4:
-        return "Invalid MPIN"
-    if isconsecutive(pin) or isrepeated(pin) or isalternate(pin):
-        return "WEAK: Commonly used MPIN"
-    return "STRONG"
 def isalternate(pin):
     return len(pin) == 4 and pin[0] == pin[2] and pin[1] == pin[3]
 def extract_date_parts(date_str):
@@ -68,7 +66,7 @@ def extract_date_parts(date_str):
 
     return parts
 
-pin = input("Enter your 4 digit MPIN: ")
+pin = input("Enter your 6 digit MPIN: ")
 
 print("\nNow enter dates in DD/MM/YYYY format or enter -1 if not applicable.")
 

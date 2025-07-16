@@ -2,18 +2,12 @@ import datetime
 def check_mpin_strength(pin, dob_self, dob_spouse, anniversary):
     reasons = []
 
-    if not pin.isdigit() or len(pin) != 4:
+    if not pin.isdigit() or len(pin) != 6:
         return "Invalid MPIN", ["INVALID_INPUT"]
 
-    if isalternate(pin):
+    if isalternate(pin) or isconsecutive(pin) or isrepeated(pin) or ispallindrome(pin):
         reasons.append("COMMONLY_USED")
 
-    if isconsecutive(pin):
-        reasons.append("COMMONLY_USED")
-    if isrepeated(pin):
-        reasons.append("COMMONLY_USED")
-
-    
     if dob_self != "-1":
         if pin in extract_date_parts(dob_self):
             reasons.append("DEMOGRAPHIC_DOB_SELF")
@@ -36,6 +30,14 @@ def isconsecutive(pin):
     return False
 def isrepeated(pin):
     return any(pin.count(d) > 2 for d in set(pin))
+def ispallindrome(pin):
+    return pin == pin[::-1]
+def check_common(pin):
+    if not pin.isdigit() or len(pin) != 4:
+        return "Invalid MPIN"
+    if isconsecutive(pin) or isrepeated(pin) or isalternate(pin):
+        return "WEAK: Commonly used MPIN"
+    return "STRONG"
 def isalternate(pin):
     return len(pin) == 4 and pin[0] == pin[2] and pin[1] == pin[3]
 def extract_date_parts(date_str):
@@ -55,19 +57,19 @@ def extract_date_parts(date_str):
 
     parts = set()
     parts.update([
-        dd + mm, mm + dd,
-        dd + yyf, yyf + dd,
-        dd+yyb,yyb+dd,
-        mm + yyf, yyf + mm,
-        yyb+mm,mm+yyb,
-        yyyy,                    
-        yyyy[::-1],              
-        dd + dd, mm + mm, yyf + yyb
-    ])
+        dd + mm + yyf,dd + mm + yyb,mm + dd + yyf,
+        mm + dd + yyb,dd + yyf + yyb,dd + yyb + yyf,yyf + dd + mm,
+        yyb + dd + mm,mm + yyf + dd,mm + yyb + dd,
+        yyf + mm + dd,yyb + mm + dd,
+        yyf + yyf + yyf,yyb + yyb + yyb,
+        dd + dd + dd,mm + mm + mm,
+        yyyy + yyyy[::-1],yyyy[::-1] + yyyy
+])
+
 
     return parts
 
-pin = input("Enter your 4 digit MPIN: ")
+pin = input("Enter your 6 digit MPIN: ")
 
 print("\nNow enter dates in DD/MM/YYYY format or enter -1 if not applicable.")
 
