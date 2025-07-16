@@ -92,5 +92,5 @@ for i, (pin, dob1, dob2, ann, expected_strength, expected_reasons) in enumerate(
     assert strength == expected_strength, f"Test {i} failed: strength"
     for r in expected_reasons:
         assert r in reasons, f"Test {i} failed: missing reason {r}"
-    print(f"✅ Test {i} passed.")
+    print(f"Test {i} passed.")
 
